@@ -1,0 +1,81 @@
+synchronous , asynchronous (blocking and non-blocking)
+
+- sync :: มันจะ block และทำงานบรรทัดนั้น ๆ จนกว่าจะทำงานเสร็จถึงจะทำงานบรรทัดถัดไป 
+        eg. readFileSync() // block util done
+            console.log()  // waiting  
+
+- asynchronous :: สลับการทำงานนั้น ๆ ไปยัง background (non blocking)    จากนั้นจะไปทำงานที่บรรทัดถัดไปเลยเมื่อทำงานเสร็จมันจะกลับมาที่ callback ที่ทำการ register เอาไว้ 
+        eg. readFile() => { // received result from background. 
+
+                registerCallback() // do stuff here 
+        
+                } //  non-blocking , swap to background 
+
+            console.log() // continue     
+
+##############################################################################
+
+fundamental design of Node.js  
+
+Node.js => ใช้ single thread ในการรับ request 
+        => request ถูกประมวลผลบน thread เดียวกันแต่จะแยกส่วนการทำงานตาม request ดังนั้นถ้าหากเราทำงานด้วย  synchronous ที่มีการ blocking ที่ main thread นั้นจะส่งผลให้ request อื่น ๆ ที่ต้องการเข้ามาใช้งานต้องรอจนกว่ามันจะ executed สำเร็จเลย   
+
+
+##############################################################################
+
+การใช้งาน NPM 
+
+NPM :: คือ pacakge manager สำหรับ JS โดยที่ NPM จะถูกติดตั้งมาพร้อมกับ Node.js เลย
+npm init => เป็นการเพิ่ม package manager เข้าไปใน porject ของเรา 
+
+
+package ที่จะติดตั้งมี 2 แบบคือ simple dependency , development dependency 
+(1) simple dependency => framework หรือ อะไรที่ code เราทำงานได้โดยขึ้นอยู่กับมัน เช่น express.js 
+npm install xxx --save 
+
+(2)development dependency => dev lib. ที่ไม่จำเป็นต่อ production เช่น logging 
+npm install xxx --save-dev 
+
+(3)global dependency => ลง lib เฉพาะในเครื่องเราแต่ไม่เพิ่มใน pacakge.json พวก command ต่าง ๆ เช่น nodemon 
+npm install xxx -g 
+
+#ไม่ระบุ version จะได้ lasted version แต่สามารถระบุได้ด้วยการ @version 
+
+ถ้าหากเราลง dependency ทั้งใน local project , local machine ถ้าเรียกใช้ผ่าน cmd ก็จะเป็นของในเครื่องแต่ถ้าอยากใช่้ทีเ่ป็น local project ให้ไปเขียนใน pacakge.json ในส่วนของ script 
+จากนั้นใช้ npm run ... หรือ npm ชื่อ script เอาแทนจะเป็นการเรียกใช้ dependency ที่อยู่ใน local project
+
+หากไม่ใช้งาน module นั้น ๆ แล้วสามารถลบออกได้ด้วยการ 
+npm uninstall ... 
+
+หลังจากเพิ่ม dependency เข้าไปใน pacakge.json แล้วเราสามารถเรียกใช้ได้ใน code ของเราด้วยการ 
+require('ชื่อ dependency')
+โดยมีลำดับการ require ดังนี้
+- built-in 
+- external dependency
+- local dependency
+
+Sematic version  
+x.x.x (major , minor , patch) 
+-- path = fix bug 
+-- minor = new feature but not breaker change , backward-compatible. 
+-- major = new release breaker chang มีผลกระทบต่อการทำงานเช่น api บางตัวใช้ไม่ได้แล้วลบออก หรือ business logic เปลี่ยน
+
+#ระวังการ update ที่เป็น major version 
+ูู^ ใน npm มันคือการบอกว่าจะอัพเดทเฉพาะ patch + minor เท่านั้น 
+~ ใน npm มันคือการ update เฉพาะ patch 
+* ใน npm มันคือการ update major ไปด้วยต้องระวังให้มาก ๆ เพราะมี break change 
+
+การตรวจสอบหา package ที่ outdated 
+npm outdated 
+npm update xxx@version (@ is optional)
+
+การลบ npm uninstall xxx
+
+-- ignore :: node_modules
+
+package-lock.json => dependency ที่ dependency เราใช้ 
+
+การ downgrade ทำได้ด้วยการ npm install xxx@version (-exact ถ้าหากต้องการระบุ version ไม่ update)
+
+ npm@latest  stable 
+ npm@next    laseted release 
